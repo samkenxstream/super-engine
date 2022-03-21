@@ -1,24 +1,28 @@
-Want to contribute? Great! First, read this page (including the small print at the end).
+# How to contribute
 
-### Before you contribute
-Before we can use your code, you must sign the
-[Google Individual Contributor License Agreement](https://developers.google.com/open-source/cla/individual?csw=1)
-(CLA), which you can do online. The CLA is necessary mainly because you own the
-copyright to your changes, even after your contribution becomes part of our
-codebase, so we need your permission to use and distribute your code. We also
-need to be sure of various other things—for instance that you'll tell us if you
-know that your code infringes on other people's patents. You don't have to sign
-the CLA until after you've submitted your code for review and a member has
-approved it, but you must do it before we can put your code into our codebase.
-Before you start working on a larger contribution, you should get in touch with
-us first through the issue tracker with your idea so that we can help out and
-possibly guide you. Coordinating up front makes it much easier to avoid
-frustration later on.
+We definitely welcome feedback and contribution to Google APIs! Here
+is some guideline and information about how to do so.
 
-### Code reviews
-All submissions, including submissions by project members, require review. We
-use Github pull requests for this purpose.
+## Legal requirements
 
-### The small print
-Contributions made by corporations are covered by a different agreement than
-the one above, the Software Grant and Corporate Contributor License Agreement.
+In order to protect both you and ourselves, you will need to sign the
+[Contributor License Agreement](https://cla.developers.google.com/clas).
+
+## Technical requirements
+
+You will need several tools to work with this repository. At minimum,
+you need both [Protocol Buffers](https://github.com/google/protobuf)
+and [gRPC](https://github.com/grpc) in order to compile this
+repository and generate client library source code in various
+programming languages.
+
+To compile the generated code into usable client libraries, you will
+need to use appropriate development environments and setup proper
+build configurations.
+
+## Additional note
+
+Currently, the root's Makefile only lets you generate source code for
+the client library in the programming languages supported by
+[gRPC](https://github.com/grpc). It does not generate the ready-to-use
+client libraries yet.

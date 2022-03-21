@@ -1,123 +1,49 @@
-# vim: set softtabstop=2 shiftwidth=2:
-SHELL = bash
+# This is a simple Makefile that generates client library source code
+# for Google APIs using Protocol Buffers and gRPC for any supported
+# language. However, it does not compile the generated code into final
+# libraries that can be directly used with application code.
+#
+# Syntax example: make OUTPUT=./output LANGUAGE=java
+#
 
-PUBLISHTAG = $(shell node scripts/publish-tag.js)
-BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
+# Choose the output directory
+OUTPUT ?= ./gens
 
-markdowns = $(shell find docs -name '*.md' | grep -v 'index')
+# Choose the target language.
+LANGUAGE ?= cpp
 
-# these docs have the @VERSION@ tag in them, so they have to be rebuilt
-# whenever the package.json is touched, in case the version changed.
-version_mandocs = $(shell grep -rl '@VERSION@' docs/content \
-									|sed 's|.md|.1|g' \
-									|sed 's|docs/content/commands/|man/man1/|g' )
+# Choose grpc plugin
+GRPCPLUGIN ?= /usr/local/bin/grpc_$(LANGUAGE)_plugin
 
-cli_mandocs = $(shell find docs/content/commands -name '*.md' \
-               |sed 's|.md|.1|g' \
-               |sed 's|docs/content/commands/|man/man1/|g' )
+# Choose the proto include directory.
+PROTOINCLUDE ?= /usr/local/include
 
-files_mandocs = $(shell find docs/content/configuring-npm -name '*.md' \
-               |sed 's|.md|.5|g' \
-               |sed 's|docs/content/configuring-npm/|man/man5/|g' ) \
+# Choose protoc binary
+PROTOC ?= protoc
 
-misc_mandocs = $(shell find docs/content/using-npm -name '*.md' \
-               |sed 's|.md|.7|g' \
-               |sed 's|docs/content/using-npm/|man/man7/|g' ) \
+# Compile the entire repository
+#
+# NOTE: if "protoc" command is not in the PATH, you need to modify this file.
+#
 
-mandocs = $(cli_mandocs) $(files_mandocs) $(misc_mandocs)
+ifeq ($(LANGUAGE),go)
+$(error Go source files are not generated from this repository. See: https://github.com/google/go-genproto)
+endif
 
-all: docs
+FLAGS+= --proto_path=.:$(PROTOINCLUDE)
+FLAGS+= --$(LANGUAGE)_out=$(OUTPUT) --grpc_out=$(OUTPUT)
+FLAGS+=	--plugin=protoc-gen-grpc=$(GRPCPLUGIN)
 
-docs: mandocs htmldocs
+SUFFIX:= pb.cc
 
-# don't regenerate the snapshot if we're generating
-# snapshots, since presumably we just did that.
-mandocs: dev-deps $(mandocs)
-	@ ! [ $${npm_lifecycle_event} = "snap" ] && \
-	  ! [ $${npm_lifecycle_event} = "postsnap" ] && \
-	  TAP_SNAPSHOT=1 node test/lib/utils/config/definitions.js || true
+DEPS:= $(shell find google $(PROTOINCLUDE)/google/protobuf -type f -name '*.proto' | sed "s/proto$$/$(SUFFIX)/")
 
-$(version_mandocs): package.json
+all: $(DEPS)
 
-htmldocs: dev-deps
-	node bin/npm-cli.js rebuild
-	node bin/npm-cli.js run -w docs build
+%.$(SUFFIX):  %.proto
+	mkdir -p $(OUTPUT)
+	$(PROTOC) $(FLAGS) $*.proto
 
-clean: docs-clean gitclean
-
-docsclean: docs-clean
-
-docs-clean:
-	rm -rf man
-
-## build-time dependencies for the documentation
-dev-deps:
-	node bin/npm-cli.js install --no-audit --ignore-scripts
-
-## targets for man files, these are encouraged to be only built by running `make docs` or `make mandocs`
-man/man1/%.1: docs/content/commands/%.md scripts/docs-build.js
-	@[ -d man/man1 ] || mkdir -p man/man1
-	node scripts/docs-build.js $< $@
-
-man/man5/npm-json.5: man/man5/package.json.5
-	cp $< $@
-
-man/man5/npm-global.5: man/man5/folders.5
-	cp $< $@
-
-man/man5/%.5: docs/content/configuring-npm/%.md scripts/docs-build.js
-	@[ -d man/man5 ] || mkdir -p man/man5
-	node scripts/docs-build.js $< $@
-
-man/man7/%.7: docs/content/using-npm/%.md scripts/docs-build.js
-	@[ -d man/man7 ] || mkdir -p man/man7
-	node scripts/docs-build.js $< $@
-
-# Any time the config definitions description changes, automatically
-# update the documentation to account for it
-docs/content/using-npm/config.md: scripts/config-doc.js lib/utils/config/*.js
-	node scripts/config-doc.js
-
-docs/content/commands/npm-%.md: lib/%.js scripts/config-doc-command.js lib/utils/config/*.js
-	node scripts/config-doc-command.js $@ $<
-
-freshdocs:
-	touch lib/utils/config/definitions.js
-	touch scripts/config-doc-command.js
-	touch scripts/config-doc.js
-	make docs
-
-test: dev-deps
-	node bin/npm-cli.js test
-
-smoke-tests: dev-deps
-	node bin/npm-cli.js run smoke-tests -- --no-check-coverage
-
-ls-ok:
-	node . ls --production >/dev/null
-
-gitclean:
-	git clean -fd
-
-uninstall:
-	node bin/npm-cli.js rm -g -f npm
-
-link: uninstall
-	node bin/npm-cli.js link -f --ignore-scripts
-
-prune:
-	node bin/npm-cli.js run resetdeps
-	node bin/npm-cli.js prune --production --no-save --no-audit
-	@[[ "$(shell git status -s)" != "" ]] && echo "ERR: found unpruned files" && exit 1 || echo "git status is clean"
-
-
-publish: gitclean ls-ok link test smoke-tests docs prune
-	@git push origin :v$(shell node bin/npm-cli.js --no-timing -v) 2>&1 || true
-	git push origin $(BRANCH) &&\
-	git push origin --tags &&\
-	node bin/npm-cli.js publish --tag=$(PUBLISHTAG)
-
-release: gitclean ls-ok docs prune
-	@bash scripts/release.sh
-
-.PHONY: all latest install dev link docs clean uninstall test man docs-clean docsclean release ls-ok dev-deps prune freshdocs
+clean:
+	rm $(patsubst %,$(OUTPUT)/%,$(DEPS)) 2> /dev/null
+	rm -rd $(OUTPUT)

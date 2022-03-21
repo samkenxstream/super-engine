@@ -1,20 +1,7 @@
-# build output
-tmp/
-dist/
-
-# Mac finder
-.DS_Store
-
-# emacs stuff
-*~
-\#*\#
-
-# npm stuff
-npm-debug.log
-node_modules/
-
-# VS artifacts
-*.suo
-*.sln
-vs-chromium-project.txt
-project.vs-chromium-project
+OWNERS
+README.google
+google/internal
+google/protobuf
+.project
+artman-genfiles/
+bazel-*
