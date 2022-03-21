@@ -1,7 +1,8 @@
-OWNERS
-README.google
-google/internal
-google/protobuf
-.project
-artman-genfiles/
-bazel-*
+# stryker temp files
+/.stryker-tmp
+
+/node_modules
+/reports
+/test/error/reported.json
+
+docs/*.jar

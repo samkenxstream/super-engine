@@ -1,26 +1,20 @@
 {
   "extends": [
     "config:base",
-    "docker:disable",
-    ":disableDependencyDashboard"
+    ":preserveSemverRanges",
+    ":ignoreUnstable",
+    ":respectLatest",
+    ":semanticCommits",
+    ":pinAllExceptPeerDependencies",
+    "npm:unpublishSafe"
   ],
-  "pinVersions": false,
-  "rebaseStalePrs": true,
-  "schedule": [
-    "after 9am and before 3pm"
-  ],
-  "gitAuthor": null,
+  "dependencyDashboard": true,
+  "prHourlyLimit": 0,
+  "rangeStrategy": "bump",
   "packageRules": [
     {
-      "extends": "packages:linters",
-      "groupName": "linters"
-    },
-    {
-      "packageNames": ["google.golang.org/genproto"],
-      "schedule": "after 7pm on monday"
+      "packageNames": ["node"],
+      "enabled": false
     }
-  ],
-  "lockFileMaintenance": {
-    "enabled": true
-  }
+  ]
 }

@@ -1,43 +1,69 @@
 {
-  "name": "axiom-src",
-  "version": "1.0.4",
-  "description": "Axiom source repository",
+  "name": "@xmldom/xmldom",
+  "version": "0.8.1",
+  "description": "A pure JavaScript W3C standard-based (XML DOM Level 2 Core) DOMParser and XMLSerializer module.",
+  "keywords": [
+    "w3c",
+    "dom",
+    "xml",
+    "parser",
+    "javascript",
+    "DOMParser",
+    "XMLSerializer",
+    "ponyfill"
+  ],
+  "homepage": "https://github.com/xmldom/xmldom",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chromium/axiom.git"
+    "url": "git://github.com/xmldom/xmldom.git"
   },
-  "author": "Axiom authors",
-  "licensce": "CHROMIUM",
-  "readmeFilename": "README.md",
-  "bin": {
-    "wash": "./bin/wash.js"
+  "main": "lib/index.js",
+  "types": "index.d.ts",
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "readme.md",
+    "SECURITY.md",
+    "index.d.ts",
+    "lib"
+  ],
+  "scripts": {
+    "lint": "eslint lib test",
+    "changelog": "auto-changelog --unreleased-only",
+    "start": "nodemon --watch package.json --watch lib --watch test --exec 'npm --silent run test && npm --silent run lint'",
+    "stryker": "stryker run",
+    "stryker:dry-run": "stryker run -m '' --reporters progress",
+    "test": "jest",
+    "version": "./changelog-has-version.sh",
+    "release": "np --no-yarn"
   },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "dependencies": {},
   "devDependencies": {
-    "es6-collections": "^0.4.1",
-    "es6-module-transpiler": "~0.9.6",
-    "es6-module-transpiler-amd-formatter": "~0.2.4",
-    "es6-promise": "^2.0.1",
-    "grunt": "^0.4.5",
-    "grunt-closure-compiler": "0.0.21",
-    "grunt-closure-compiler-build": "^1.0.1",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.5.0",
-    "grunt-contrib-copy": "^0.6.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-focus": "^0.1.1",
-    "grunt-git-deploy": "~0.1.1",
-    "grunt-karma": "~0.10.1",
-    "grunt-shell": "^1.1.2",
-    "jasmine-core": "~2.1.3",
-    "karma": "~0.12.31",
-    "karma-chrome-launcher": "~0.1.7",
-    "karma-jasmine": "~0.3.4",
-    "karma-phantomjs-launcher": "^0.1.4",
-    "matchdep": "~0.3.0",
-    "source-map-support": "^0.2.9",
-    "ws": "^0.7.1"
+    "@stryker-mutator/core": "5.6.1",
+    "auto-changelog": "2.4.0",
+    "eslint": "8.11.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-es5": "1.5.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "get-stream": "6.0.1",
+    "jest": "27.5.1",
+    "nodemon": "2.0.15",
+    "np": "7.6.0",
+    "prettier": "2.5.1",
+    "xmltest": "1.5.0",
+    "yauzl": "2.10.0"
   },
-  "dependencies": {
-    "hterm": "^2.0.2"
+  "bugs": {
+    "url": "https://github.com/xmldom/xmldom/issues"
+  },
+  "license": "MIT",
+  "auto-changelog": {
+    "prepend": true,
+    "remote": "upstream",
+    "tagPrefix": "",
+    "template": "./auto-changelog.hbs"
   }
 }
