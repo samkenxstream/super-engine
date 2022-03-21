@@ -1,66 +1,70 @@
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/npm/cli/Node%20CI/latest)](https://github.com/npm/cli/actions?query=workflow%3A%22Node+CI%22+branch%3Alatest) [![Coveralls github branch](https://img.shields.io/coveralls/github/npm/cli/latest)](https://coveralls.io/github/npm/cli?branch=latest)
 
-# npm - a JavaScript package manager
+# TODO
 
-### Requirements
+The axiom name is taken by a [Yoeman-like workflow tool](https://www.npmjs.com/package/axiom).  We'll need a new name, stat.
 
-* [**Node.js** `v10`](https://nodejs.org/en/download/) or higher must be installed to run this program
 
-### Installation
+# Axiom: Universal File System, Streams, and Processes API for JS
 
-**`npm`** comes bundled with [**`node`**](https://nodejs.org/), & most third-party distributions, by default. Officially supported downloads/distributions can be found at: [nodejs.org/en/download](https://nodejs.org/en/download)
+Axiom is a cross browser library that provides primitives for File Systems, Streams, and Processes.
 
-#### Direct Download
+[![Block Diagram](doc/fs-with-axiom.png)](doc/explainer.md)
 
-You can download & install **`npm`** directly from [**npmjs**.com](https://npmjs.com/) using our custom `install.sh` script:
+If you're not already familiar with Axiom, please read our [explainer document](doc/explainer.md) for a brief introduction to the project.
 
-```bash
-curl -qL https://www.npmjs.com/install.sh | sh
+## Live demo
+
+[![Screenshot of live demo](samples/web_shell/images/screenshot-20150324.png)](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md)
+
+For a live demo of Axiom in action, check out the [web_shell sample app](https://chromium.github.io/axiom/web_shell/) on our github.io page.  Read more about it in [web_shell/README.md](https://github.com/chromium/axiom/tree/master/samples/web_shell/README.md).
+
+## Axiom on node.js
+
+[![Screenshot of native shell](doc/native-shell.png)](bin/wash.js)
+
+Axiom can also be used from node.js.  The same code behind our online demo can be used to start a shell in a native terminal.  You'll need an xterm compatible terminal emulator for this, even on Windows.  See [issue #97](https://github.com/chromium/axiom/issues/97) for the details.
+
+## Building Axiom
+
+If you're already familiar with node.js, npm, and grunt, you can jump right in with...
+
+```
+$ cd path/to/axiom
+$ npm install
+$ grunt dist
 ```
 
-#### Node Version Managers
+For more detailed information see our [build.md](doc/build.md) document.
 
-If you're looking to manage multiple versions of **`node`** &/or **`npm`**, consider using a "Node Version Manager" such as:
+## The Axiom distribution
 
-* [**`nvm`**](https://github.com/nvm-sh/nvm)
-* [**`nvs`**](https://github.com/jasongin/nvs)
-* [**`nave`**](https://github.com/isaacs/nave)
-* [**`n`**](https://github.com/tj/n)
-* [**`volta`**](https://github.com/volta-cli/volta)
-* [**`nodenv`**](https://github.com/nodenv/nodenv)
-* [**`asdf-nodejs`**](https://github.com/asdf-vm/asdf-nodejs)
-* [**`nvm-windows`**](https://github.com/coreybutler/nvm-windows)
+The Axiom distribution includes two libraries, `axiom-base` and `axiom-wash`.
 
-### Usage
+The `axiom-base` library contains the file system library and drivers for a few stock file systems, including:
 
-```bash
-npm <command>
-```
+* An in-memory file system called "jsfs".
+* A [DOM File System](http://dev.w3.org/2009/dap/file-system/pub/FileSystem/) based driver called "domfs".  (Supported cross browser using [a polyfill](https://github.com/ebidel/idb.filesystem.js).
+* A [Google Drive](https://developers.google.com/drive/v2/reference/) file system.
+* A node.js based file system which lets your access your local file system through the Axiom API in a node.js environment.
 
-### Links & Resources
+(The DOM, Google Drive, and node.js file system drivers may move out to separate packages at some point.)
 
-* [**Documentation**](https://docs.npmjs.com/) - Official docs & how-tos for all things **npm**
-    * Note: you can also search docs locally with `npm help-search <query>`
-* [**Bug Tracker**](https://github.com/npm/cli/issues) - Search or submit bugs against the CLI
-* [**Roadmap**](https://github.com/npm/roadmap) - Track & follow along with our public roadmap
-* [**Feedback**](https://github.com/npm/feedback) - Contribute ideas & discussion around the npm registry, website & CLI
-* [**RFCs**](https://github.com/npm/rfcs) - Contribute ideas & specifications for the API/design of the npm CLI
-* [**Service Status**](https://status.npmjs.org/) - Monitor the current status & see incident reports for the website & registry
-* [**Project Status**](https://npm.github.io/statusboard/) - See the health of all our maintained OSS projects in one view
-* [**Events Calendar**](https://calendar.google.com/calendar/u/0/embed?src=npmjs.com_oonluqt8oftrt0vmgrfbg6q6go@group.calendar.google.com) - Keep track of our Open RFC calls, releases, meetups, conferences & more
-* [**Support**](https://www.npmjs.com/support) - Experiencing problems with the **npm** [website](https://npmjs.com) or [registry](https://registry.npmjs.org)? File a ticket [here](https://www.npmjs.com/support)
+The `axiom-wash` library contains a command line interface running on top of axiom-base.  It includes the wash command shell and a few supporting executables (cd, cp, mv, etc.).  If your application doesn't need to provide a command line interface you won't need to include this library.
 
-### Acknowledgments
+These libraries are available as raw ES6 modules, individual AMD-compatible files, concatenated AMD-compatible bundle, and individual CommonJS modules.  Choose whichever version suits your particular application.
 
-* `npm` is configured to use the **npm Public Registry** at [https://registry.npmjs.org](https://registry.npmjs.org) by default; Usage of this registry is subject to **Terms of Use** available at [https://npmjs.com/policies/terms](https://npmjs.com/policies/terms)
-* You can configure `npm` to use any other compatible registry you prefer. You can read more about configuring third-party registries [here](https://docs.npmjs.com/cli/v7/using-npm/registry)
+## Importing Axiom
 
-### FAQ on Branding
+NOTE: We've yet to *finalize* the name for "Axiom".  Once that's done, we'll be publishing npm packages for the axiom-base and axiom-wash libraries.  Until then, you need to build them yourself by following the instructions in our [build.md](doc/build.md) document.
 
-#### Is it "npm" or "NPM" or "Npm"?
+If your application is browser based you'll probably want to load the AMD bundle in a &lt;script&gt; tag.
 
-**`npm`** should never be capitalized unless it is being displayed in a location that is customarily all-capitals (ex. titles on `man` pages).
+If your application has an AMD loader already, you may use its `require` function to import axiom modules.  Module access will look like `var FileSystem = require('axiom/fs/base/file_system').FileSystem';`.
 
-#### Is "npm" an acronym for "Node Package Manager"?
+If you don't have your own AMD loader you have two options.  You can replace `require` with `__axiomRequire__` as shown above, or you can export the modules to a global variable.  To create a global variable, call `__axiomExport__(window);` before calling any Axiom code.  This will create a `window.axiom` object containing the Axiom modules.  You can access modules with code like `var FileSystem = axiom.fs.base.file_system.FileSystem`.
 
-Contrary to popular belief, **`npm`** **is not** in fact an acronym for "Node Package Manager"; It is a recursive bacronymic abbreviation for **"npm is not an acronym"** (if the project was named "ninaa", then it would be an acronym). The precursor to **`npm`** was actually a bash utility named **"pm"**, which was the shortform name of **"pkgmakeinst"** - a bash function that installed various things on various platforms. If **`npm`** were to ever have been considered an acronym, it would be as "node pm" or, potentially "new pm".
+If you're using Axiom in a node.js environment, make sure to include the cjs/ directory from the Axiom distribution in your module path, and require modules with code like `var FileSystem = require('axiom/fs/base/file_system').FileSystem;`.
+
+## Axiom API
+
+Documentation is a work-in progress.  Stay tuned to our [api.md](doc/api.md) document.  Until that's done, start with the [web_shell sample](samples/web_shell/) or the [base file system](lib/axiom/fs/base) classes.

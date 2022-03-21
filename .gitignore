@@ -1,30 +1,20 @@
-*.swp
-npm-debug.log
-/.nyc_output
-/test/output.log
-/test/*/*/node_modules
-/test/packages/npm-test-depends-on-spark/which-spark.log
-/test/packages/test-package/random-data.txt
-/test/root
-/node_modules/.bin
-/docs/output/
-/docs/node_modules/
-/man/
-/npmrc
-/release/
-/npm-*.tgz
-/node_modules/npm-registry-client/test/fixtures
-/test/fixtures/config/userconfig-with-gc
-/node_modules/npm-registry-couchapp
-*.pyc
-.jshintrc
-.eslintrc
-.nyc_output
-/test/npm_cache*
-/node_modules/.cache
+# build output
+tmp/
+dist/
+
+# Mac finder
 .DS_Store
-**/.DS_Store
-/coverage
-/*.tgz
-/.editorconfig
-.vscode/
+
+# emacs stuff
+*~
+\#*\#
+
+# npm stuff
+npm-debug.log
+node_modules/
+
+# VS artifacts
+*.suo
+*.sln
+vs-chromium-project.txt
+project.vs-chromium-project
