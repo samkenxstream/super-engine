@@ -1,56 +1,66 @@
-# cloud-init
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/npm/cli/Node%20CI/latest)](https://github.com/npm/cli/actions?query=workflow%3A%22Node+CI%22+branch%3Alatest) [![Coveralls github branch](https://img.shields.io/coveralls/github/npm/cli/latest)](https://coveralls.io/github/npm/cli?branch=latest)
 
-[![Build Status](https://travis-ci.com/canonical/cloud-init.svg?branch=main)](https://travis-ci.com/canonical/cloud-init) [![Read the Docs](https://readthedocs.org/projects/cloudinit/badge/?version=latest&style=flat)](https://cloudinit.readthedocs.org)
+# npm - a JavaScript package manager
 
-Cloud-init is the *industry standard* multi-distribution method for
-cross-platform cloud instance initialization. It is supported across all
-major public cloud providers, provisioning systems for private cloud
-infrastructure, and bare-metal installations.
+### Requirements
 
-Cloud instances are initialized from a disk image and instance data:
+* [**Node.js** `v10`](https://nodejs.org/en/download/) or higher must be installed to run this program
 
-- Cloud metadata
-- User data (optional)
-- Vendor data (optional)
+### Installation
 
-Cloud-init will identify the cloud it is running on during boot, read any
-provided metadata from the cloud and initialize the system accordingly. This
-may involve setting up network and storage devices to configuring SSH
-access key and many other aspects of a system. Later on cloud-init will
-also parse and process any optional user or vendor data that was passed to the
-instance.
+**`npm`** comes bundled with [**`node`**](https://nodejs.org/), & most third-party distributions, by default. Officially supported downloads/distributions can be found at: [nodejs.org/en/download](https://nodejs.org/en/download)
 
-## Getting help
+#### Direct Download
 
-If you need support, start with the [user documentation](https://cloudinit.readthedocs.io/en/latest/).
+You can download & install **`npm`** directly from [**npmjs**.com](https://npmjs.com/) using our custom `install.sh` script:
 
-If you need additional help consider reaching out with one of the following options:
+```bash
+curl -qL https://www.npmjs.com/install.sh | sh
+```
 
-- Ask a question in the [``#cloud-init`` IRC channel on Libera](https://kiwiirc.com/nextclient/irc.libera.chat/cloud-init)
-- Search the cloud-init [mailing list archive](https://lists.launchpad.net/cloud-init/)
-- Better yet, join the [cloud-init mailing list](https://launchpad.net/~cloud-init) and participate
-- Find a bug? [Report bugs on Launchpad](https://bugs.launchpad.net/cloud-init/+filebug)
+#### Node Version Managers
 
-## Distribution and cloud support
+If you're looking to manage multiple versions of **`node`** &/or **`npm`**, consider using a "Node Version Manager" such as:
 
-Below are a list of the many OSes and clouds that contain and ship with cloud-init. If your
-distribution or cloud is not listed or does not have a recent version of cloud-init, please
-get in contact with that distribution and send them our way!
+* [**`nvm`**](https://github.com/nvm-sh/nvm)
+* [**`nvs`**](https://github.com/jasongin/nvs)
+* [**`nave`**](https://github.com/isaacs/nave)
+* [**`n`**](https://github.com/tj/n)
+* [**`volta`**](https://github.com/volta-cli/volta)
+* [**`nodenv`**](https://github.com/nodenv/nodenv)
+* [**`asdf-nodejs`**](https://github.com/asdf-vm/asdf-nodejs)
+* [**`nvm-windows`**](https://github.com/coreybutler/nvm-windows)
 
-| Supported OSes | Supported Public Clouds | Supported Private Clouds |
-| --- | --- | --- |
-| Alpine Linux<br />ArchLinux<br />Debian<br />DragonFlyBSD<br />Fedora<br />FreeBSD<br />Gentoo Linux<br />NetBSD<br />OpenBSD<br />openEuler<br />RHEL/CentOS/AlmaLinux/Rocky/PhotonOS/Virtuozzo/EuroLinux/CloudLinux/MIRACLE LINUX<br />SLES/openSUSE<br />Ubuntu<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /> | Amazon Web Services<br />Microsoft Azure<br />Google Cloud Platform<br />Oracle Cloud Infrastructure<br />Softlayer<br />Rackspace Public Cloud<br />IBM Cloud<br />DigitalOcean<br />Bigstep<br />Hetzner<br />Joyent<br />CloudSigma<br />Alibaba Cloud<br />OVH<br />OpenNebula<br />Exoscale<br />Scaleway<br />CloudStack<br />AltCloud<br />SmartOS<br />HyperOne<br />Vultr<br />Rootbox<br /> | Bare metal installs<br />OpenStack<br />LXD<br />KVM<br />Metal-as-a-Service (MAAS)<br />VMware<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />|
+### Usage
 
-## To start developing cloud-init
+```bash
+npm <command>
+```
 
-Checkout the [contributing](https://cloudinit.readthedocs.io/en/latest/topics/contributing.html)
-document that outlines the steps necessary to develop, test, and submit code.
+### Links & Resources
 
-## Daily builds
+* [**Documentation**](https://docs.npmjs.com/) - Official docs & how-tos for all things **npm**
+    * Note: you can also search docs locally with `npm help-search <query>`
+* [**Bug Tracker**](https://github.com/npm/cli/issues) - Search or submit bugs against the CLI
+* [**Roadmap**](https://github.com/npm/roadmap) - Track & follow along with our public roadmap
+* [**Feedback**](https://github.com/npm/feedback) - Contribute ideas & discussion around the npm registry, website & CLI
+* [**RFCs**](https://github.com/npm/rfcs) - Contribute ideas & specifications for the API/design of the npm CLI
+* [**Service Status**](https://status.npmjs.org/) - Monitor the current status & see incident reports for the website & registry
+* [**Project Status**](https://npm.github.io/statusboard/) - See the health of all our maintained OSS projects in one view
+* [**Events Calendar**](https://calendar.google.com/calendar/u/0/embed?src=npmjs.com_oonluqt8oftrt0vmgrfbg6q6go@group.calendar.google.com) - Keep track of our Open RFC calls, releases, meetups, conferences & more
+* [**Support**](https://www.npmjs.com/support) - Experiencing problems with the **npm** [website](https://npmjs.com) or [registry](https://registry.npmjs.org)? File a ticket [here](https://www.npmjs.com/support)
 
-Daily builds are useful if you want to try the latest upstream code for the latest
-features or to verify bug fixes.
+### Acknowledgments
 
-For Ubuntu, see the [Daily PPAs](https://code.launchpad.net/~cloud-init-dev/+archive/ubuntu/daily)
+* `npm` is configured to use the **npm Public Registry** at [https://registry.npmjs.org](https://registry.npmjs.org) by default; Usage of this registry is subject to **Terms of Use** available at [https://npmjs.com/policies/terms](https://npmjs.com/policies/terms)
+* You can configure `npm` to use any other compatible registry you prefer. You can read more about configuring third-party registries [here](https://docs.npmjs.com/cli/v7/using-npm/registry)
 
-For CentOS, see the [COPR build repos](https://copr.fedorainfracloud.org/coprs/g/cloud-init/cloud-init-dev/)
+### FAQ on Branding
+
+#### Is it "npm" or "NPM" or "Npm"?
+
+**`npm`** should never be capitalized unless it is being displayed in a location that is customarily all-capitals (ex. titles on `man` pages).
+
+#### Is "npm" an acronym for "Node Package Manager"?
+
+Contrary to popular belief, **`npm`** **is not** in fact an acronym for "Node Package Manager"; It is a recursive bacronymic abbreviation for **"npm is not an acronym"** (if the project was named "ninaa", then it would be an acronym). The precursor to **`npm`** was actually a bash utility named **"pm"**, which was the shortform name of **"pkgmakeinst"** - a bash function that installed various things on various platforms. If **`npm`** were to ever have been considered an acronym, it would be as "node pm" or, potentially "new pm".

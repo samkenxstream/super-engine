@@ -1,146 +1,123 @@
-CWD=$(shell pwd)
+# vim: set softtabstop=2 shiftwidth=2:
+SHELL = bash
 
-YAML_FILES=$(shell find cloudinit tests tools -name "*.yaml" -type f )
-YAML_FILES+=$(shell find doc/examples -name "cloud-config*.txt" -type f )
+PUBLISHTAG = $(shell node scripts/publish-tag.js)
+BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
-PYTHON = python3
-PIP_INSTALL := pip3 install
+markdowns = $(shell find docs -name '*.md' | grep -v 'index')
 
-ifeq ($(distro),)
-  distro = redhat
-endif
+# these docs have the @VERSION@ tag in them, so they have to be rebuilt
+# whenever the package.json is touched, in case the version changed.
+version_mandocs = $(shell grep -rl '@VERSION@' docs/content \
+									|sed 's|.md|.1|g' \
+									|sed 's|docs/content/commands/|man/man1/|g' )
 
-READ_VERSION=$(shell $(PYTHON) $(CWD)/tools/read-version || echo read-version-failed)
-CODE_VERSION=$(shell $(PYTHON) -c "from cloudinit import version; print(version.version_string())")
+cli_mandocs = $(shell find docs/content/commands -name '*.md' \
+               |sed 's|.md|.1|g' \
+               |sed 's|docs/content/commands/|man/man1/|g' )
+
+files_mandocs = $(shell find docs/content/configuring-npm -name '*.md' \
+               |sed 's|.md|.5|g' \
+               |sed 's|docs/content/configuring-npm/|man/man5/|g' ) \
+
+misc_mandocs = $(shell find docs/content/using-npm -name '*.md' \
+               |sed 's|.md|.7|g' \
+               |sed 's|docs/content/using-npm/|man/man7/|g' ) \
+
+mandocs = $(cli_mandocs) $(files_mandocs) $(misc_mandocs)
+
+all: docs
+
+docs: mandocs htmldocs
+
+# don't regenerate the snapshot if we're generating
+# snapshots, since presumably we just did that.
+mandocs: dev-deps $(mandocs)
+	@ ! [ $${npm_lifecycle_event} = "snap" ] && \
+	  ! [ $${npm_lifecycle_event} = "postsnap" ] && \
+	  TAP_SNAPSHOT=1 node test/lib/utils/config/definitions.js || true
+
+$(version_mandocs): package.json
+
+htmldocs: dev-deps
+	node bin/npm-cli.js rebuild
+	node bin/npm-cli.js run -w docs build
+
+clean: docs-clean gitclean
+
+docsclean: docs-clean
+
+docs-clean:
+	rm -rf man
+
+## build-time dependencies for the documentation
+dev-deps:
+	node bin/npm-cli.js install --no-audit --ignore-scripts
+
+## targets for man files, these are encouraged to be only built by running `make docs` or `make mandocs`
+man/man1/%.1: docs/content/commands/%.md scripts/docs-build.js
+	@[ -d man/man1 ] || mkdir -p man/man1
+	node scripts/docs-build.js $< $@
+
+man/man5/npm-json.5: man/man5/package.json.5
+	cp $< $@
+
+man/man5/npm-global.5: man/man5/folders.5
+	cp $< $@
+
+man/man5/%.5: docs/content/configuring-npm/%.md scripts/docs-build.js
+	@[ -d man/man5 ] || mkdir -p man/man5
+	node scripts/docs-build.js $< $@
+
+man/man7/%.7: docs/content/using-npm/%.md scripts/docs-build.js
+	@[ -d man/man7 ] || mkdir -p man/man7
+	node scripts/docs-build.js $< $@
+
+# Any time the config definitions description changes, automatically
+# update the documentation to account for it
+docs/content/using-npm/config.md: scripts/config-doc.js lib/utils/config/*.js
+	node scripts/config-doc.js
+
+docs/content/commands/npm-%.md: lib/%.js scripts/config-doc-command.js lib/utils/config/*.js
+	node scripts/config-doc-command.js $@ $<
+
+freshdocs:
+	touch lib/utils/config/definitions.js
+	touch scripts/config-doc-command.js
+	touch scripts/config-doc.js
+	make docs
+
+test: dev-deps
+	node bin/npm-cli.js test
+
+smoke-tests: dev-deps
+	node bin/npm-cli.js run smoke-tests -- --no-check-coverage
+
+ls-ok:
+	node . ls --production >/dev/null
+
+gitclean:
+	git clean -fd
+
+uninstall:
+	node bin/npm-cli.js rm -g -f npm
+
+link: uninstall
+	node bin/npm-cli.js link -f --ignore-scripts
+
+prune:
+	node bin/npm-cli.js run resetdeps
+	node bin/npm-cli.js prune --production --no-save --no-audit
+	@[[ "$(shell git status -s)" != "" ]] && echo "ERR: found unpruned files" && exit 1 || echo "git status is clean"
 
 
-all: check
+publish: gitclean ls-ok link test smoke-tests docs prune
+	@git push origin :v$(shell node bin/npm-cli.js --no-timing -v) 2>&1 || true
+	git push origin $(BRANCH) &&\
+	git push origin --tags &&\
+	node bin/npm-cli.js publish --tag=$(PUBLISHTAG)
 
-check: check_version test yaml
+release: gitclean ls-ok docs prune
+	@bash scripts/release.sh
 
-style-check: flake8
-
-flake8:
-	@$(CWD)/tools/run-flake8
-
-unittest: clean_pyc
-	python3 -m pytest -v tests/unittests cloudinit
-
-ci-deps-ubuntu:
-	@$(PYTHON) $(CWD)/tools/read-dependencies --distro ubuntu --test-distro
-
-ci-deps-centos:
-	@$(PYTHON) $(CWD)/tools/read-dependencies --distro centos --test-distro
-
-pip-requirements:
-	@echo "Installing cloud-init dependencies..."
-	$(PIP_INSTALL) -r "$@.txt" -q
-
-pip-test-requirements:
-	@echo "Installing cloud-init test dependencies..."
-	$(PIP_INSTALL) -r "$@.txt" -q
-
-test: unittest
-
-check_version:
-	@if [ "$(READ_VERSION)" != "$(CODE_VERSION)" ]; then \
-	    echo "Error: read-version version '$(READ_VERSION)'" \
-	    "not equal to code version '$(CODE_VERSION)'"; exit 2; \
-	    else true; fi
-
-config/cloud.cfg:
-	$(PYTHON) ./tools/render-cloudcfg config/cloud.cfg.tmpl config/cloud.cfg
-
-clean_pyc:
-	@find . -type f -name "*.pyc" -delete
-	@find . -type d -name __pycache__ -delete
-
-clean_pytest:
-	rm -rf .cache htmlcov
-
-clean_packaging:
-	rm -rf srpm cloud_init.egg-info/ \
-		cloud-init-*.tar.gz \
-		cloud-init-*.tar.gz.asc \
-		cloud-init.dsc \
-		cloud-init_*.build \
-		cloud-init_*.buildinfo \
-		cloud-init_*.changes \
-		cloud-init_*.deb \
-		cloud-init_*.dsc \
-		cloud-init_*.orig.tar.gz \
-		cloud-init_*.tar.xz \
-		cloud-init_*.upload
-
-clean_release:
-	rm -rf new-upstream-changes.txt commit.msg
-
-clean: clean_pyc clean_pytest clean_packaging clean_release
-	rm -rf doc/rtd_html .tox .coverage tags
-
-yaml:
-	@$(PYTHON) $(CWD)/tools/validate-yaml.py $(YAML_FILES)
-
-rpm:
-	$(PYTHON) ./packages/brpm --distro=$(distro)
-
-srpm:
-	$(PYTHON) ./packages/brpm --srpm --distro=$(distro)
-
-deb:
-	@which debuild || \
-		{ echo "Missing devscripts dependency. Install with:"; \
-		  echo sudo apt-get install devscripts; exit 1; }
-
-	$(PYTHON) ./packages/bddeb
-
-deb-src:
-	@which debuild || \
-		{ echo "Missing devscripts dependency. Install with:"; \
-		  echo sudo apt-get install devscripts; exit 1; }
-	$(PYTHON) ./packages/bddeb -S -d
-
-doc:
-	tox -e doc
-
-# Spell check && filter false positives
-_CHECK_SPELLING := find doc -type f -exec spellintian {} + | \
-       grep -v -e 'doc/rtd/topics/cli.rst: modules modules' \
-               -e 'doc/examples/cloud-config-mcollective.txt: WARNING WARNING' \
-               -e 'doc/examples/cloud-config-power-state.txt: Bye Bye' \
-               -e 'doc/examples/cloud-config.txt: Bye Bye'
-
-
-# For CI we require a failing return code when spellintian finds spelling errors
-check_spelling:
-	@! $(_CHECK_SPELLING)
-
-# Manipulate the output of spellintian into a valid "sed" command which is run
-# to fix the error
-#
-# Example spellintian output:
-#
-# doc/examples/kernel-cmdline.txt: everthing -> everything
-#
-# The "fix_spelling" target manipulates the above output into the following command
-# and runs that command.
-#
-# sed -i "s/everthing/everything/g" doc/examples/kernel-cmdline.txt
-#
-# awk notes:
-#
-# -F ': | -> ' means use the strings ": " or " -> " as field delimeters
-# \046 is octal for double quote
-# $$2 will contain the second field, ($ must be escaped because this is in a Makefile)
-#
-# Limitation: duplicate words with newline between them are not automatically fixed
-fix_spelling:
-	@$(_CHECK_SPELLING) | \
-		sed 's/ (duplicate word)//g' | \
-		awk -F ': | -> ' '{printf "sed -i \047s/%s/%s/g\047 %s\n", $$2, $$3, $$1}' | \
-		sh
-
-.PHONY: test flake8 clean rpm srpm deb deb-src yaml
-.PHONY: check_version pip-test-requirements pip-requirements clean_pyc
-.PHONY: unittest style-check doc fix_spelling
-.PHONY: clean_pytest clean_packaging check_spelling clean_release
+.PHONY: all latest install dev link docs clean uninstall test man docs-clean docsclean release ls-ok dev-deps prune freshdocs
