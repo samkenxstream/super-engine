@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "config:base",
+    "docker:disable",
+    ":disableDependencyDashboard"
+  ],
+  "pinVersions": false,
+  "rebaseStalePrs": true,
+  "schedule": [
+    "after 9am and before 3pm"
+  ],
+  "gitAuthor": null,
+  "packageRules": [
+    {
+      "extends": "packages:linters",
+      "groupName": "linters"
+    },
+    {
+      "packageNames": ["google.golang.org/genproto"],
+      "schedule": "after 7pm on monday"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  }
+}
